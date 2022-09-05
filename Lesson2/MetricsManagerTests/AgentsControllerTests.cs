@@ -12,13 +12,13 @@ namespace MetricsManagerTests
 {
     public class AgentsControllerTests
     {
-        private AgentsController _agentsController;
+        private ManagerAgentsController _agentsController;
         private AgentPool _agentPool;
 
         public AgentsControllerTests()
         {
             _agentPool = LazySingleton.Instance;
-            _agentsController = new AgentsController(_agentPool);
+            _agentsController = new ManagerAgentsController(_agentPool);
         }
 
         [Theory]
