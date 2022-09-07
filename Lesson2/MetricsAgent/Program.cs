@@ -18,6 +18,14 @@ namespace MetricsAgent
 
 			// Add services to the container.
 
+			#region Configure options
+
+			builder.Services.Configure<DataBaseOptions>(options =>
+			{
+				builder.Configuration.GetSection("Settings:DataBase").Bind(options);
+			});
+
+			#endregion
 
 			#region Configure logging
 
@@ -48,7 +56,7 @@ namespace MetricsAgent
 			builder.Services.AddScoped<INetworkMetricsRepository, NetworkMetricsRepository>();
 			builder.Services.AddScoped<IDotNetMetricsRepository, DotNetMetricsRepository>();
 
-			ConfigureSqlLiteConnection(builder.Services);
+			ConfigureSqlLiteConnection(builder);
 
 			#endregion
 
@@ -88,10 +96,9 @@ namespace MetricsAgent
             app.Run();
         }
 
-		private static void ConfigureSqlLiteConnection(IServiceCollection services)
+		private static void ConfigureSqlLiteConnection(WebApplicationBuilder? builder)
 		{
-			const string connectionString = "Data Source = metrics.db; Version = 3; Pooling = true; Max Pool Size = 100;";
-			var connection = new SQLiteConnection(connectionString);
+			var connection = new SQLiteConnection(builder.Configuration["Settings:DataBase:ConnectionString"]);
 			connection.Open();
 			PrepareSchema(connection);
 		}

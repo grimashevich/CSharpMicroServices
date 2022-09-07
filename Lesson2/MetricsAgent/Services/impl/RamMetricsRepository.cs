@@ -1,16 +1,21 @@
-﻿using MetricsAgent.Models;
+﻿using Dapper;
+using MetricsAgent.Models;
+using Microsoft.AspNetCore.SignalR;
+using Microsoft.Extensions.Options;
 using System.Data.SQLite;
 
 namespace MetricsAgent.Services.impl
 {
 	public class RamMetricsRepository : IRamMetricsRepository
 	{
-		private const string ConnectionString = "Data Source=metrics.db;Version=3;Pooling=true;Max Pool Size=100;";
-
+		private readonly string ConnectionString;
+		private readonly IOptions<DataBaseOptions> _dbOptions;
 		private readonly string _dbTableName;
 
-		public RamMetricsRepository()
+		public RamMetricsRepository(IOptions<DataBaseOptions> dbOptions)
 		{
+			_dbOptions = dbOptions;
+			ConnectionString = _dbOptions.Value.ConnectionString;
 			_dbTableName = DbTables.GetTableName("ram");
 		}
 
@@ -18,103 +23,52 @@ namespace MetricsAgent.Services.impl
 		{
 			using var connection = new SQLiteConnection(ConnectionString);
 			connection.Open();
-			using var cmd = new SQLiteCommand(connection);
-			cmd.CommandText = $"INSERT INTO {_dbTableName}(value, time) VALUES(@value, @time)";
-			cmd.Parameters.AddWithValue("@value", item.Value);
-			cmd.Parameters.AddWithValue("@time", item.Time);
-			cmd.Prepare();
-			cmd.ExecuteNonQuery();
+			connection.Execute($"INSERT INTO {_dbTableName}(value, time) VALUES(@value, @time)", new
+			{
+				value = item.Value,
+				time = item.Time
+			});
 		}
 
 		public void Delete(int id)
 		{
 			using var connection = new SQLiteConnection(ConnectionString);
 			connection.Open();
-			using var cmd = new SQLiteCommand(connection);
-			cmd.CommandText = $"DELETE FROM {_dbTableName} WHERE id=@id";
-			cmd.Parameters.AddWithValue("@id", id);
-			cmd.Prepare();
-			cmd.ExecuteNonQuery();
+			connection.Execute($"DELETE FROM {_dbTableName} WHERE id={id}");
 		}
 
 		public IList<RamMetric> GetAll()
 		{
 			using var connection = new SQLiteConnection(ConnectionString);
 			connection.Open();
-			using var cmd = new SQLiteCommand(connection);
-			cmd.CommandText = $"SELECT * FROM {_dbTableName}";
-			var returnList = new List<RamMetric>();
-			using (SQLiteDataReader reader = cmd.ExecuteReader())
-			{
-				while (reader.Read())
-				{
-					returnList.Add(new RamMetric
-					{
-						Id = reader.GetInt32(0),
-						Value = reader.GetInt32(1),
-						Time = reader.GetInt32(2)
-					});
-				}
-			}
-			return returnList;
+			return connection.Query<RamMetric>($"SELECT * FROM {_dbTableName}").ToList();
 		}
 
 		public RamMetric GetById(int id)
 		{
 			using var connection = new SQLiteConnection(ConnectionString);
 			connection.Open();
-			using var cmd = new SQLiteCommand(connection);
-			cmd.CommandText = $"SELECT * FROM {_dbTableName} WHERE id={id}";
-			using (SQLiteDataReader reader = cmd.ExecuteReader())
-			{
-				if (reader.Read())
-				{
-					return new RamMetric
-					{
-						Id = reader.GetInt32(0),
-						Value = reader.GetInt32(1),
-						Time = reader.GetInt32(2)
-					};
-				}
-				return null;
-			}
+			return connection.QuerySingle<RamMetric>($"SELECT * FROM {_dbTableName} WHERE id={id}");
 		}
 
 		public IList<RamMetric> GetByTimePeriod(TimeSpan timeFrom, TimeSpan timeTo)
 		{
 			using var connection = new SQLiteConnection(ConnectionString);
 			connection.Open();
-			using var cmd = new SQLiteCommand(connection);
-			cmd.CommandText = $"SELECT * FROM {_dbTableName} where time >= @timeFrom and time <= @timeTo";
-			cmd.Parameters.AddWithValue("@timeFrom", timeFrom.TotalSeconds);
-			cmd.Parameters.AddWithValue("@timeTo", timeTo.TotalSeconds);
-			var returnList = new List<RamMetric>();
-			using (SQLiteDataReader reader = cmd.ExecuteReader())
-			{
-				while (reader.Read())
-				{
-					returnList.Add(new RamMetric
-					{
-						Id = reader.GetInt32(0),
-						Value = reader.GetInt32(1),
-						Time = reader.GetInt32(2)
-					});
-				}
-			}
-			return returnList;
+			return (connection.Query<RamMetric>($"SELECT * FROM {_dbTableName} WHERE " +
+				$"time >= {timeFrom.TotalSeconds} AND time <= {timeTo.TotalSeconds}").ToList());
 		}
 
 		public void Update(RamMetric item)
 		{
 			using var connection = new SQLiteConnection(ConnectionString);
-			using var cmd = new SQLiteCommand(connection);
 			connection.Open();
-			cmd.CommandText = $"UPDATE {_dbTableName} SET value = @value, time = @time WHERE id = @id; ";
-			cmd.Parameters.AddWithValue("@id", item.Id);
-			cmd.Parameters.AddWithValue("@value", item.Value);
-			cmd.Parameters.AddWithValue("@time", item.Time);
-			cmd.Prepare();
-			cmd.ExecuteNonQuery();
+			connection.Execute($"UPDATE {_dbTableName} SET value = @value, time = @time WHERE id = @id", new
+			{
+				value = item.Value,
+				time = item.Time,
+				id = item.Id
+			});
 		}
 	}
 }
