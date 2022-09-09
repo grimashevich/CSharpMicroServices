@@ -1,4 +1,6 @@
-﻿using MetricsAgent.Models;
+﻿using AutoMapper;
+using MetricsAgent.Models;
+using MetricsAgent.Models.Dto;
 using MetricsAgent.Models.Requests;
 using MetricsAgent.Services;
 using MetricsAgent.Services.impl;
@@ -13,26 +15,32 @@ namespace MetricsAgent.Controllers
     {
 		private readonly ILogger<AgentNetworkMetricsController> _logger;
 		private readonly INetworkMetricsRepository _networkMetricsRepository;
+		private readonly IMapper _mapper;
 
-        public AgentNetworkMetricsController(ILogger<AgentNetworkMetricsController> logger,
-			INetworkMetricsRepository networkMetricsRepository)
+		public AgentNetworkMetricsController(ILogger<AgentNetworkMetricsController> logger,
+			INetworkMetricsRepository networkMetricsRepository,
+			IMapper mapper)
         {
             _logger = logger;
             _networkMetricsRepository = networkMetricsRepository;
-        }
+			_mapper = mapper;
+		}
 
 		#region Public methods
 
 		[HttpGet("getall")]
-		public IActionResult GetAllCpuMetrics()
+		public IActionResult GetAllNetworkMetrics()
 		{
-			return Ok(_networkMetricsRepository.GetAll());
+			_logger.LogInformation("Network getall call");
+			return Ok(_networkMetricsRepository.GetAll()
+				.Select(metric => _mapper.Map<NetworkMetricDto>(metric)).ToList());
 		}
 
 		[HttpGet("getbyid/{id}")]
-		public IActionResult GetCpuMetricById([FromRoute] int id)
+		public IActionResult GetNetworkMetricById([FromRoute] int id)
 		{
-			return Ok(_networkMetricsRepository.GetById(id));
+			_logger.LogInformation("Network getbyid call");
+			return Ok(_mapper.Map<NetworkMetricDto>(_networkMetricsRepository.GetById(id)));
 		}
 
 		[HttpGet("from/{fromTime}/to/{toTime}")]
@@ -40,31 +48,31 @@ namespace MetricsAgent.Controllers
             [FromRoute] TimeSpan toTime)
         {
             _logger.LogInformation("Network metric call");
-			return Ok(_networkMetricsRepository.GetByTimePeriod(fromTime, toTime));
+			return Ok(_networkMetricsRepository.GetByTimePeriod(fromTime, toTime)
+				.Select(metric => _mapper.Map<NetworkMetricDto>(metric)).ToList());
 		}
 
 		[HttpPost("create")]
 		public IActionResult Create([FromBody] NetworkMetricCreateRequest request)
 		{
-			_networkMetricsRepository.Create(new Models.NetworkMetric
-			{
-				Value = request.Value,
-				Time = (int)request.Time.TotalSeconds
-			});
+			_logger.LogInformation("Network create metric call");
+			_networkMetricsRepository.Create(_mapper.Map<NetworkMetric>(request));
 			return Ok();
 		}
 
 		[HttpPut("update")]
-		public IActionResult UpdateCpuMetric([FromBody] NetworkMetric request)
+		public IActionResult Update([FromBody] NetworkMetric request)
 		{
+			_logger.LogInformation("Network update metric call");
 			_networkMetricsRepository.Update(request);
 			return Ok();
 		}
 
 		[HttpDelete("delete/{id}")]
 
-		public IActionResult DeleteCpuMetric([FromRoute] int id)
+		public IActionResult Delete([FromRoute] int id)
 		{
+			_logger.LogInformation("Network delete metric call");
 			_networkMetricsRepository.Delete(id);
 			return Ok();
 		}

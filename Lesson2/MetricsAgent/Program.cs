@@ -1,3 +1,4 @@
+using AutoMapper;
 using MetricsAgent.Converters;
 using MetricsAgent.Models;
 using MetricsAgent.Services;
@@ -16,7 +17,11 @@ namespace MetricsAgent
         {
             var builder = WebApplication.CreateBuilder(args);
 
-			// Add services to the container.
+			#region Configure Automapper
+			var mapperConfiguration = new MapperConfiguration(mp => mp.AddProfile(new MapperProfile()));
+			var mapper = mapperConfiguration.CreateMapper();
+			builder.Services.AddSingleton(mapper);
+			#endregion
 
 			#region Configure options
 

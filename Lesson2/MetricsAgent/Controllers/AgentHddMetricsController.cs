@@ -1,4 +1,6 @@
-﻿using MetricsAgent.Models;
+﻿using AutoMapper;
+using MetricsAgent.Models;
+using MetricsAgent.Models.Dto;
 using MetricsAgent.Models.Requests;
 using MetricsAgent.Services;
 using MetricsAgent.Services.impl;
@@ -14,58 +16,64 @@ namespace MetricsAgent.Controllers
 
 		private readonly ILogger<AgentHddMetricsController> _logger;
 		private readonly IHddMetricsRepository _hddMetricsRepository;
+		private readonly IMapper _mapper;
 
 		public AgentHddMetricsController(ILogger<AgentHddMetricsController> logger,
-			IHddMetricsRepository hddMetricsRepository)
+			IHddMetricsRepository hddMetricsRepository,
+			IMapper mapper)
 		{
 			_logger = logger;
 			_hddMetricsRepository = hddMetricsRepository;
+			_mapper = mapper;
 		}
 
 		#region Public methods
 
 		[HttpGet("getall")]
-		public IActionResult GetAllCpuMetrics()
+		public IActionResult GetAllHddMetrics()
 		{
-			return Ok(_hddMetricsRepository.GetAll());
+			_logger.LogInformation("Hdd getall call");
+			return Ok(_hddMetricsRepository.GetAll()
+				.Select(metric => _mapper.Map<HddMetricDto>(metric)).ToList());
 		}
 
 		[HttpGet("getbyid/{id}")]
-		public IActionResult GetCpuMetricById([FromRoute] int id)
+		public IActionResult GetHddMetricById([FromRoute] int id)
 		{
-			return Ok(_hddMetricsRepository.GetById(id));
+			_logger.LogInformation("Hdd getbyid call");
+			return Ok(_mapper.Map<HddMetricDto>(_hddMetricsRepository.GetById(id)));
 		}
 
 		[HttpGet("from/{fromTime}/to/{toTime}")]
-		public IActionResult getHddMetrics([FromRoute] TimeSpan fromTime,
+		public ActionResult<IList<HddMetricDto>> GetHddMetrics([FromRoute] TimeSpan fromTime,
 			[FromRoute] TimeSpan toTime)
 		{
-			_logger.LogInformation("HDD merics call");
-			return Ok(_hddMetricsRepository.GetByTimePeriod(fromTime, toTime));
+			_logger.LogInformation("Hdd get by time period call");
+			return Ok(_hddMetricsRepository.GetByTimePeriod(fromTime, toTime)
+				.Select(metric => _mapper.Map<HddMetricDto>(metric)).ToList());
 		}
 
 		[HttpPost("create")]
 		public IActionResult Create([FromBody] HddMetricCreateRequest request)
 		{
-			_hddMetricsRepository.Create(new Models.HddMetric
-			{
-				Value = request.Value,
-				Time = (int)request.Time.TotalSeconds
-			});
+			_logger.LogInformation("Hdd create metric call");
+			_hddMetricsRepository.Create(_mapper.Map<HddMetric>(request));
 			return Ok();
 		}
 
 		[HttpPut("update")]
-		public IActionResult UpdateCpuMetric([FromBody] HddMetric request)
+		public IActionResult Update([FromBody] HddMetric request)
 		{
+			_logger.LogInformation("Hdd update metric call");
 			_hddMetricsRepository.Update(request);
 			return Ok();
 		}
 
 		[HttpDelete("delete/{id}")]
 
-		public IActionResult DeleteCpuMetric([FromRoute] int id)
+		public IActionResult Delete([FromRoute] int id)
 		{
+			_logger.LogInformation("Hdd delete metric call");
 			_hddMetricsRepository.Delete(id);
 			return Ok();
 		}

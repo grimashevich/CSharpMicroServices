@@ -1,4 +1,6 @@
-﻿using MetricsAgent.Models;
+﻿using AutoMapper;
+using MetricsAgent.Models;
+using MetricsAgent.Models.Dto;
 using MetricsAgent.Models.Requests;
 using MetricsAgent.Services;
 using MetricsAgent.Services.impl;
@@ -13,12 +15,15 @@ namespace MetricsAgent.Controllers
 	{
 		private readonly ILogger<AgentDonNetMetricsController> _logger;
 		private readonly IDotNetMetricsRepository _dotNetMetricsRepository;
+		private readonly IMapper _mapper;
 
 		public AgentDonNetMetricsController(ILogger<AgentDonNetMetricsController> logger,
-			IDotNetMetricsRepository dotNetMetricsRepository)
+			IDotNetMetricsRepository dotNetMetricsRepository,
+			IMapper mapper)
 		{
 			_logger = logger;
 			_dotNetMetricsRepository = dotNetMetricsRepository;
+			_mapper = mapper;
 		}
 
 		#region Public methods
@@ -26,13 +31,16 @@ namespace MetricsAgent.Controllers
 		[HttpGet("getall")]
 		public IActionResult GetAllCpuMetrics()
 		{
-			return Ok(_dotNetMetricsRepository.GetAll());
+			_logger.LogInformation("DotNet getall call");
+			return Ok(_dotNetMetricsRepository.GetAll()
+				.Select(metric => _mapper.Map<DotNetMetricDto>(metric)).ToList());
 		}
 
 		[HttpGet("getbyid/{id}")]
 		public IActionResult GetCpuMetricById([FromRoute] int id)
 		{
-			return Ok(_dotNetMetricsRepository.GetById(id));
+			_logger.LogInformation("DotNet getbyid call");
+			return Ok(_mapper.Map<DotNetMetric>(_dotNetMetricsRepository.GetById(id)));
 		}
 
 		[HttpGet("from/{fromTime}/to/{toTime}")]
@@ -40,23 +48,22 @@ namespace MetricsAgent.Controllers
 			[FromRoute] TimeSpan toTime)
 		{
 			_logger.LogInformation("DotNet metrics call");
-			return Ok(_dotNetMetricsRepository.GetByTimePeriod(fromTime, toTime));
+			return Ok(_dotNetMetricsRepository.GetByTimePeriod(fromTime, toTime).
+				Select(metric => _mapper.Map<DotNetMetric>(metric)).ToList());
 		}
 
 		[HttpPost("create")]
 		public IActionResult Create([FromBody] DotNetMetricCreateRequest request)
 		{
-			_dotNetMetricsRepository.Create(new Models.DotNetMetric
-			{
-				Value = request.Value,
-				Time = (int)request.Time.TotalSeconds
-			});
+			_dotNetMetricsRepository.Create(_mapper.Map<DotNetMetric>(request));
+			_logger.LogInformation("DotNet create metric call");
 			return Ok();
 		}
 
 		[HttpPut("update")]
 		public IActionResult UpdateCpuMetric([FromBody] DotNetMetric request)
 		{
+			_logger.LogInformation("DotNet update metric call");
 			_dotNetMetricsRepository.Update(request);
 			return Ok();
 		}
@@ -65,6 +72,7 @@ namespace MetricsAgent.Controllers
 
 		public IActionResult DeleteCpuMetric([FromRoute] int id)
 		{
+			_logger.LogInformation("DotNet delete metric call");
 			_dotNetMetricsRepository.Delete(id);
 			return Ok();
 		}
