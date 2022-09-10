@@ -15,7 +15,7 @@ namespace MetricsAgent.Services.impl
 		{
 			_dbOptions = dbOptions;
 			ConnectionString = _dbOptions.Value.ConnectionString;
-			_dbTableName = DbTables.GetTableName("cpu");
+			_dbTableName = DbTables.GetTableName("hdd");
 		}
 
 		public void Create(HddMetric item)

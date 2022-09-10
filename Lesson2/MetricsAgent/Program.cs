@@ -1,5 +1,8 @@
 using AutoMapper;
+using FluentMigrator.Runner;
 using MetricsAgent.Converters;
+using MetricsAgent.Job;
+using MetricsAgent.Jobs;
 using MetricsAgent.Models;
 using MetricsAgent.Services;
 using MetricsAgent.Services.impl;
@@ -7,6 +10,10 @@ using Microsoft.AspNetCore.HttpLogging;
 using Microsoft.OpenApi.Any;
 using Microsoft.OpenApi.Models;
 using NLog.Web;
+using Quartz;
+using Quartz.Core;
+using Quartz.Impl;
+using Quartz.Spi;
 using System.Data.SQLite;
 
 namespace MetricsAgent
@@ -61,8 +68,36 @@ namespace MetricsAgent
 			builder.Services.AddScoped<INetworkMetricsRepository, NetworkMetricsRepository>();
 			builder.Services.AddScoped<IDotNetMetricsRepository, DotNetMetricsRepository>();
 
-			ConfigureSqlLiteConnection(builder);
+			/*/ConfigureSqlLiteConnection(builder);*/
+			#endregion
 
+			#region Configure Database
+
+			builder.Services.AddFluentMigratorCore()
+				.ConfigureRunner(rb =>
+				rb.AddSQLite()
+				.WithGlobalConnectionString(builder.Configuration["Settings:DataBase:ConnectionString"])
+				.ScanIn(typeof(Program).Assembly).For.Migrations()
+				).AddLogging(lb => lb.AddFluentMigratorConsole()) ;
+
+			#endregion
+
+			#region Configure jobs
+
+			builder.Services.AddSingleton<IJobFactory, SingletonJobFactory>();
+			builder.Services.AddSingleton<ISchedulerFactory, StdSchedulerFactory>();
+			builder.Services.AddSingleton<CpuMetricJob>();
+			builder.Services.AddSingleton<RamMetricJob>();
+			builder.Services.AddSingleton<HddMetricJob>();
+			builder.Services.AddSingleton<NetworkMetricJob>();
+			builder.Services.AddSingleton<DotNetMetricJob>();
+
+			builder.Services.AddSingleton(new JobSchedule(typeof(CpuMetricJob), "0/5 * * ? * * *"));
+			builder.Services.AddSingleton(new JobSchedule(typeof(RamMetricJob), "0/5 * * ? * * *"));
+			builder.Services.AddSingleton(new JobSchedule(typeof(HddMetricJob), "0/5 * * ? * * *"));
+			builder.Services.AddSingleton(new JobSchedule(typeof(NetworkMetricJob), "0/5 * * ? * * *"));
+			builder.Services.AddSingleton(new JobSchedule(typeof(DotNetMetricJob), "0/5 * * ? * * *"));
+			builder.Services.AddHostedService<QuartzHostedService>();
 			#endregion
 
 			builder.Services.AddControllers()
@@ -92,41 +127,18 @@ namespace MetricsAgent
                 app.UseSwagger();
                 app.UseSwaggerUI();
             }
-
             app.UseAuthorization();
 			app.UseHttpLogging();
-
             app.MapControllers();
-
+			
+			var serviceScopeFactory = app.Services.GetRequiredService<IServiceScopeFactory>();
+			using (IServiceScope serviceScope = serviceScopeFactory.CreateScope())
+			{
+				var migrationRunner = serviceScope.ServiceProvider.GetRequiredService<IMigrationRunner>();
+				migrationRunner.MigrateDown(-1);
+				migrationRunner.MigrateUp();
+			}
             app.Run();
         }
-
-		private static void ConfigureSqlLiteConnection(WebApplicationBuilder? builder)
-		{
-			var connection = new SQLiteConnection(builder.Configuration["Settings:DataBase:ConnectionString"]);
-			connection.Open();
-			PrepareSchema(connection);
-		}
-
-		private static void PrepareSchema(SQLiteConnection connection)
-		{
-			CreateTablesIfNotExist(DbTables.GetTableNames().Values.ToArray(), connection);
-		}
-
-		private static void CreateTablesIfNotExist(string[] tableNames, SQLiteConnection connection)
-		{
-
-			using (var command = new SQLiteCommand(connection))
-			{
-				foreach (var tableName in tableNames)
-				{
-					command.CommandText = $"CREATE TABLE IF NOT EXISTS {tableName}";
-					command.CommandText = command.CommandText +  
-						"(id INTEGER PRIMARY KEY, value INT, time INT)";
-					command.ExecuteNonQuery();
-				}
-			}
-
-		}
 	}
 }
