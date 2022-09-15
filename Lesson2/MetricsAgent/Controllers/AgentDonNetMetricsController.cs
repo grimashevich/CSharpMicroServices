@@ -2,6 +2,7 @@
 using MetricsAgent.Models;
 using MetricsAgent.Models.Dto;
 using MetricsAgent.Models.Requests;
+using MetricsAgent.Models.Responses;
 using MetricsAgent.Services;
 using MetricsAgent.Services.impl;
 using Microsoft.AspNetCore.Http;
@@ -48,8 +49,12 @@ namespace MetricsAgent.Controllers
 			[FromRoute] TimeSpan toTime)
 		{
 			_logger.LogInformation("DotNet metrics call");
-			return Ok(_dotNetMetricsRepository.GetByTimePeriod(fromTime, toTime).
-				Select(metric => _mapper.Map<DotNetMetric>(metric)).ToList());
+			GetDotNetMetricResponse response = new GetDotNetMetricResponse
+			{
+				Metrics = _dotNetMetricsRepository.GetByTimePeriod(fromTime, toTime)
+				.Select(metric => _mapper.Map<DotNetMetricDto>(metric)).ToList()
+			};
+			return Ok(response);
 		}
 
 		[HttpPost("create")]

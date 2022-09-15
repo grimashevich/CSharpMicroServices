@@ -7,8 +7,8 @@ namespace MetricsAgent.Services.impl
 {
 	public class CpuMetricsRepository : ICpuMetricsRepository
 	{
-		private readonly string ConnectionString;
 		private readonly IOptions<DataBaseOptions> _dbOptions;
+		private readonly string ConnectionString;
 		private readonly string _dbTableName;
 
 		public CpuMetricsRepository(IOptions<DataBaseOptions> dbOptions)

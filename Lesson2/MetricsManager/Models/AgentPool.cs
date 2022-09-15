@@ -1,30 +1,73 @@
-﻿namespace MetricsManager.Models
+﻿using Dapper;
+using MetricsAgent.Models;
+using Microsoft.AspNetCore.SignalR;
+using Microsoft.Data.SqlClient;
+using Microsoft.Extensions.Options;
+using System.Data.SQLite;
+
+namespace MetricsManager.Models
 {
     public class AgentPool
     {
-        private Dictionary<int, AgentInfo> _agents;
+		private readonly IOptions<DataBaseOptions> _dbOptions;
+		private readonly string ConnectionString;
 
-        public AgentPool()
+		public AgentPool(IOptions<DataBaseOptions> dbOptions)
         {
-            _agents = new Dictionary<int, AgentInfo>();
-        }
+			_dbOptions = dbOptions;
+			ConnectionString = _dbOptions.Value.ConnectionString;
+		}
 
         public void Add(AgentInfo value)
         {
-            if (!_agents.ContainsKey(value.AgentId))
-                _agents.Add(value.AgentId, value);
-        }
-        public AgentInfo[] Get()
+			using var connection = new SQLiteConnection(ConnectionString);
+			connection.Open();
+            connection.Execute($"INSERT INTO agents (agentid, agenturl, enabled) VALUES(@id, @url, @enabled)", new
+            {
+                id = value.AgentId,
+                url = value.AgentUrl.ToString(),
+                enabled = true
+            });
+		}
+        public AgentInfo[]? GetAll()
         {
-            return _agents.Values.ToArray();
+			using var connection = new SQLiteConnection(ConnectionString);
+			connection.Open();
+            var result = connection.Query<AgentInfoDto>
+                ("SELECT agentid, agenturl, enabled FROM agents").ToArray();
+            return AgentInfoConverter(result);
+		}
 
-        }
-
-        public Dictionary<int, AgentInfo> Agents
+        public AgentInfoDto? GetById(int id)
         {
-            get { return _agents; }
-            set { _agents = value; }
+			using var connection = new SQLiteConnection(ConnectionString);
+			connection.Open();
+			var result = connection.QueryFirstOrDefault<AgentInfoDto> ($"SELECT agentid, agenturl, enabled FROM agents WHERE agentid = {id}");
+			return result;
+		}
+
+        public AgentInfo? AgentInfoConverter(AgentInfoDto objIn)
+        {
+            if (objIn == null)
+                return null;
+            AgentInfo objOut = new AgentInfo {
+                AgentId = objIn.AgentId,
+                AgentUrl = new Uri(objIn.AgentUrl),
+                Enable = objIn.Enable
+            };
+            return objOut;
         }
 
-    }
+		public AgentInfo[]? AgentInfoConverter(AgentInfoDto[] objInArr)
+		{
+			if (objInArr == null)
+				return null;
+			AgentInfo[] objOutArr = new AgentInfo[objInArr.Length];
+            for (int i = 0; i < objInArr.Length; i++)
+            {
+                objOutArr[i] = AgentInfoConverter(objInArr[i]);
+            }
+            return objOutArr;
+		}
+	}
 }

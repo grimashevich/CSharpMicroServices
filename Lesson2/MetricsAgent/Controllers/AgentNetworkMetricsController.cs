@@ -2,6 +2,7 @@
 using MetricsAgent.Models;
 using MetricsAgent.Models.Dto;
 using MetricsAgent.Models.Requests;
+using MetricsAgent.Models.Responses;
 using MetricsAgent.Services;
 using MetricsAgent.Services.impl;
 using Microsoft.AspNetCore.Http;
@@ -32,8 +33,12 @@ namespace MetricsAgent.Controllers
 		public IActionResult GetAllNetworkMetrics()
 		{
 			_logger.LogInformation("Network getall call");
-			return Ok(_networkMetricsRepository.GetAll()
-				.Select(metric => _mapper.Map<NetworkMetricDto>(metric)).ToList());
+			GetNetworkMetricResponse response = new GetNetworkMetricResponse
+			{
+				Metrics = _networkMetricsRepository.GetAll()
+				.Select(metric => _mapper.Map<NetworkMetricDto>(metric)).ToList()
+			};
+			return Ok(response);
 		}
 
 		[HttpGet("getbyid/{id}")]

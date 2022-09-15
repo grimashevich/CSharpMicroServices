@@ -68,7 +68,6 @@ namespace MetricsAgent
 			builder.Services.AddScoped<INetworkMetricsRepository, NetworkMetricsRepository>();
 			builder.Services.AddScoped<IDotNetMetricsRepository, DotNetMetricsRepository>();
 
-			/*/ConfigureSqlLiteConnection(builder);*/
 			#endregion
 
 			#region Configure Database
@@ -135,7 +134,7 @@ namespace MetricsAgent
 			using (IServiceScope serviceScope = serviceScopeFactory.CreateScope())
 			{
 				var migrationRunner = serviceScope.ServiceProvider.GetRequiredService<IMigrationRunner>();
-				migrationRunner.MigrateDown(-1);
+				//migrationRunner.MigrateDown(-1);
 				migrationRunner.MigrateUp();
 			}
             app.Run();

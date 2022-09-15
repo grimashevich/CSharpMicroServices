@@ -2,6 +2,7 @@
 using MetricsAgent.Models;
 using MetricsAgent.Models.Dto;
 using MetricsAgent.Models.Requests;
+using MetricsAgent.Models.Responses;
 using MetricsAgent.Services;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -48,8 +49,12 @@ namespace MetricsAgent.Controllers
             [FromRoute] TimeSpan fromTime, [FromRoute] TimeSpan toTime)
         {
             _logger.LogInformation("Cpu get by time period call");
-			return Ok(_cpuMetricsRepository.GetByTimePeriod(fromTime, toTime)
-                .Select(metric => _mapper.Map<CpuMetricDto>(metric)).ToList());
+            GetCpuMetricResponse response = new GetCpuMetricResponse
+            {
+                Metrics = _cpuMetricsRepository.GetByTimePeriod(fromTime, toTime)
+                .Select(metric => _mapper.Map<CpuMetricDto>(metric)).ToList()
+            };
+			return Ok(response);
 		}
         [HttpPost("create")]
         public IActionResult Create([FromBody] CpuMetricCreateRequest request)

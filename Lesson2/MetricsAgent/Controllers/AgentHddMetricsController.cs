@@ -2,6 +2,7 @@
 using MetricsAgent.Models;
 using MetricsAgent.Models.Dto;
 using MetricsAgent.Models.Requests;
+using MetricsAgent.Models.Responses;
 using MetricsAgent.Services;
 using MetricsAgent.Services.impl;
 using Microsoft.AspNetCore.Http;
@@ -49,8 +50,12 @@ namespace MetricsAgent.Controllers
 			[FromRoute] TimeSpan toTime)
 		{
 			_logger.LogInformation("Hdd get by time period call");
-			return Ok(_hddMetricsRepository.GetByTimePeriod(fromTime, toTime)
-				.Select(metric => _mapper.Map<HddMetricDto>(metric)).ToList());
+			GetHddMetricResponse response = new GetHddMetricResponse
+			{
+				Metrics = _hddMetricsRepository.GetByTimePeriod(fromTime, toTime)
+				.Select(metric => _mapper.Map<HddMetricDto>(metric)).ToList()
+			};
+			return Ok(response);
 		}
 
 		[HttpPost("create")]

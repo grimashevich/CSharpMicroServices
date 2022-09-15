@@ -1,13 +1,18 @@
+using FluentMigrator.Runner;
+using MetricsAgent.Models;
 using MetricsManager.Converters;
 using MetricsManager.Models;
+using MetricsManager.Services.Client;
+using MetricsManager.Services.Client.Impl;
 using Microsoft.AspNetCore.HttpLogging;
 using Microsoft.OpenApi.Any;
 using Microsoft.OpenApi.Models;
 using NLog.Web;
+using Polly;
 
 namespace MetricsManager
 {
-	public class ManagerProgram
+	public class Program
 	{
 		public static void Main(string[] args)
 		{
@@ -36,7 +41,39 @@ namespace MetricsManager
 
 			#endregion
 
+			#region Configure options
+
+			builder.Services.Configure<DataBaseOptions>(options =>
+			{
+				builder.Configuration.GetSection("Settings:DataBase").Bind(options);
+			});
+
+			#endregion
+
+			#region Configure Database
+
+			builder.Services.AddFluentMigratorCore()
+				.ConfigureRunner(rb =>
+				rb.AddSQLite()
+				.WithGlobalConnectionString(builder.Configuration["Settings:DataBase:ConnectionString"])
+				.ScanIn(typeof(Program).Assembly).For.Migrations()
+				).AddLogging(lb => lb.AddFluentMigratorConsole());
+
+			#endregion
+
 			builder.Services.AddSingleton<AgentPool>();
+			builder.Services.AddHttpClient();
+			builder.Services.AddHttpClient<IMetricsAgentClient, MetricsAgentClient>()
+				.AddTransientHttpErrorPolicy(p => p.WaitAndRetryAsync(retryCount: 3,
+				sleepDurationProvider: (attemptCount) => TimeSpan.FromSeconds(attemptCount * 2),
+				onRetry: (response, sleepDuration, attemptCount, context) => {
+
+					var logger = builder.Services.BuildServiceProvider().GetService<ILogger<Program>>();
+					logger.LogError(response.Exception != null ? response.Exception :
+						new Exception($"\n{response.Result.StatusCode}: {response.Result.RequestMessage}"),
+						$"(attempt: {attemptCount}) request exception.");
+				}
+				));
 
 			builder.Services.AddControllers()
 				.AddJsonOptions(options =>
@@ -69,6 +106,13 @@ namespace MetricsManager
 
 			app.MapControllers();
 
+			var serviceScopeFactory = app.Services.GetRequiredService<IServiceScopeFactory>();
+			using (IServiceScope serviceScope = serviceScopeFactory.CreateScope())
+			{
+				var migrationRunner = serviceScope.ServiceProvider.GetRequiredService<IMigrationRunner>();
+				//migrationRunner.MigrateDown(-1);
+				migrationRunner.MigrateUp();
+			}
 			app.Run();
 		}
 	}

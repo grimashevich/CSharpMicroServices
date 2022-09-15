@@ -2,6 +2,7 @@
 using MetricsAgent.Models;
 using MetricsAgent.Models.Dto;
 using MetricsAgent.Models.Requests;
+using MetricsAgent.Models.Responses;
 using MetricsAgent.Services;
 using MetricsAgent.Services.impl;
 using Microsoft.AspNetCore.Http;
@@ -48,8 +49,12 @@ namespace MetricsAgent.Controllers
 			[FromRoute] TimeSpan fromTime, [FromRoute] TimeSpan toTime)
 		{
 			_logger.LogInformation("Ram get by time period call");
-			return Ok(_ramMetricsRepository.GetByTimePeriod(fromTime, toTime)
-				.Select(metric => _mapper.Map<RamMetricDto>(metric)).ToList());
+			GetRamMetricResponse response = new GetRamMetricResponse
+			{
+				Metrics = _ramMetricsRepository.GetByTimePeriod(fromTime, toTime)
+				.Select(metric => _mapper.Map<RamMetricDto>(metric)).ToList()
+			};
+			return Ok(response);
 		}
 		[HttpPost("create")]
 		public IActionResult Create([FromBody] RamMetricCreateRequest request)
