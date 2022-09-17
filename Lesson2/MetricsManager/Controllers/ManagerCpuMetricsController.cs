@@ -49,7 +49,7 @@ namespace MetricsManager.Controllers
 
             return Ok(metrics);
         }
-
+/*
         [HttpGet("agentOld/{agentId}/from/{fromTime}/to/{toTime}")]
         public ActionResult<CpuMetricsResponse> GetMetricsFromAgentOld(
             [FromRoute] int agentId, [FromRoute] TimeSpan fromTime, [FromRoute] TimeSpan toTime)
@@ -78,7 +78,7 @@ namespace MetricsManager.Controllers
             }
             
             return BadRequest();
-        }
+        }*/
 
         [HttpGet("all/from/{fromTime}/to/{toTime}")]
         public IActionResult GetMetricsFromAll(
