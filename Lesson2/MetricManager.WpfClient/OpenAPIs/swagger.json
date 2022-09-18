@@ -1,0 +1,553 @@
+{
+  "openapi": "3.0.1",
+  "info": {
+    "title": "MetricsManager",
+    "version": "v1"
+  },
+  "paths": {
+    "/api/ManagerAgents/register": {
+      "post": {
+        "tags": [
+          "ManagerAgents"
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AgentInfo"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AgentInfo"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/AgentInfo"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Success"
+          }
+        }
+      }
+    },
+    "/api/ManagerAgents/getall": {
+      "get": {
+        "tags": [
+          "ManagerAgents"
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/AgentInfo"
+                  }
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/AgentInfo"
+                  }
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/AgentInfo"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/ManagerAgents/getbyid/{id}": {
+      "get": {
+        "tags": [
+          "ManagerAgents"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/AgentInfo"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AgentInfo"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AgentInfo"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/cpu/agent/{agentId}/from/{fromTime}/to/{toTime}": {
+      "get": {
+        "tags": [
+          "ManagerCpuMetrics"
+        ],
+        "parameters": [
+          {
+            "name": "agentId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          },
+          {
+            "name": "fromTime",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "example": "00:00:00"
+            }
+          },
+          {
+            "name": "toTime",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "example": "00:00:00"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/CpuMetricsResponse"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CpuMetricsResponse"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CpuMetricsResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/cpu/all/from/{fromTime}/to/{toTime}": {
+      "get": {
+        "tags": [
+          "ManagerCpuMetrics"
+        ],
+        "parameters": [
+          {
+            "name": "fromTime",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "example": "00:00:00"
+            }
+          },
+          {
+            "name": "toTime",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "example": "00:00:00"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success"
+          }
+        }
+      }
+    },
+    "/api/dotnet/agent/{agentId}/from/{fromTime}/to/{toTime}": {
+      "get": {
+        "tags": [
+          "ManagerDotNet"
+        ],
+        "parameters": [
+          {
+            "name": "agentId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          },
+          {
+            "name": "fromTime",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "example": "00:00:00"
+            }
+          },
+          {
+            "name": "toTime",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "example": "00:00:00"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success"
+          }
+        }
+      }
+    },
+    "/api/dotnet/all/from/{fromTime}/to/{toTime}": {
+      "get": {
+        "tags": [
+          "ManagerDotNet"
+        ],
+        "parameters": [
+          {
+            "name": "fromTime",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "example": "00:00:00"
+            }
+          },
+          {
+            "name": "toTime",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "example": "00:00:00"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success"
+          }
+        }
+      }
+    },
+    "/api/hdd/agent/{agentId}/from/{fromTime}/to/{toTime}": {
+      "get": {
+        "tags": [
+          "ManagerHddMetrics"
+        ],
+        "parameters": [
+          {
+            "name": "agentId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          },
+          {
+            "name": "fromTime",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "example": "00:00:00"
+            }
+          },
+          {
+            "name": "toTime",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "example": "00:00:00"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success"
+          }
+        }
+      }
+    },
+    "/api/hdd/all/from/{fromTime}/to/{toTime}": {
+      "get": {
+        "tags": [
+          "ManagerHddMetrics"
+        ],
+        "parameters": [
+          {
+            "name": "fromTime",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "example": "00:00:00"
+            }
+          },
+          {
+            "name": "toTime",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "example": "00:00:00"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success"
+          }
+        }
+      }
+    },
+    "/api/network/agent/{agentId}/from/{fromTime}/to/{toTime}": {
+      "get": {
+        "tags": [
+          "ManagerNetworkMetrics"
+        ],
+        "parameters": [
+          {
+            "name": "agentId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          },
+          {
+            "name": "fromTime",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "example": "00:00:00"
+            }
+          },
+          {
+            "name": "toTime",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "example": "00:00:00"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success"
+          }
+        }
+      }
+    },
+    "/api/network/all/from/{fromTime}/to/{toTime}": {
+      "get": {
+        "tags": [
+          "ManagerNetworkMetrics"
+        ],
+        "parameters": [
+          {
+            "name": "fromTime",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "example": "00:00:00"
+            }
+          },
+          {
+            "name": "toTime",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "example": "00:00:00"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success"
+          }
+        }
+      }
+    },
+    "/api/ram/agent/{agentId}/from/{fromTime}/to/{toTime}": {
+      "get": {
+        "tags": [
+          "ManagerRamMetrics"
+        ],
+        "parameters": [
+          {
+            "name": "agentId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          },
+          {
+            "name": "fromTime",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "example": "00:00:00"
+            }
+          },
+          {
+            "name": "toTime",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "example": "00:00:00"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success"
+          }
+        }
+      }
+    },
+    "/api/ram/all/from/{fromTime}/to/{toTime}": {
+      "get": {
+        "tags": [
+          "ManagerRamMetrics"
+        ],
+        "parameters": [
+          {
+            "name": "fromTime",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "example": "00:00:00"
+            }
+          },
+          {
+            "name": "toTime",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "example": "00:00:00"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success"
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "AgentInfo": {
+        "type": "object",
+        "properties": {
+          "agentId": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "agentUrl": {
+            "type": "string",
+            "format": "uri",
+            "nullable": true
+          },
+          "enable": {
+            "type": "boolean"
+          }
+        },
+        "additionalProperties": false
+      },
+      "CpuMetric": {
+        "type": "object",
+        "properties": {
+          "time": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "value": {
+            "type": "integer",
+            "format": "int32"
+          }
+        },
+        "additionalProperties": false
+      },
+      "CpuMetricsResponse": {
+        "type": "object",
+        "properties": {
+          "agenId": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "metrics": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/CpuMetric"
+            },
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      }
+    }
+  }
+}
