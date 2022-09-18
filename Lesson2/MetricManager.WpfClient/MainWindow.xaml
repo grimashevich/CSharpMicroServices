@@ -6,8 +6,13 @@
         xmlns:local="clr-namespace:MetricManager.WpfClient"
         xmlns:WpfClient="clr-namespace:MetricsManager.WpfClient" x:Class="MetricManager.WpfClient.MainWindow"
         mc:Ignorable="d"
-        Title="MainWindow" Height="450" Width="800">
+        Title="MainWindow" Height="636" Width="800">
     <Grid>
-        <WpfClient:CpuChart HorizontalAlignment="Left" VerticalAlignment="Top" Height="278" Width="380" Loaded="CpuChart_Loaded"/>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="77*"/>
+            <ColumnDefinition Width="83*"/>
+        </Grid.ColumnDefinitions>
+        <WpfClient:CpuChart HorizontalAlignment="Left" VerticalAlignment="Top" Height="282" Width="780" Loaded="CpuChart_Loaded" Margin="10,10,0,0" Grid.ColumnSpan="2"/>
+        <WpfClient:RamChart HorizontalAlignment="Left" Margin="10,310,0,0" VerticalAlignment="Top" Loaded="RamChart_Loaded" Height="294" Width="780" Grid.ColumnSpan="2"/>
     </Grid>
 </Window>

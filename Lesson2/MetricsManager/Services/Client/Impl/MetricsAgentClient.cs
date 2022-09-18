@@ -47,5 +47,28 @@ namespace MetricsManager.Services.Client.Impl
             }
             return null;
         }
+
+        public RamMetricsResponse GetRamMetrics(RamMetricsRequest request)
+        {
+			AgentInfo agentInfo = _agentPool.AgentInfoConverter(_agentPool.GetById(request.AgentId));
+			if (agentInfo == null)
+				return null;
+
+			string requestStr =
+				$"{agentInfo.AgentUrl}api/metrics/ram/from/{request.FromTime.ToString()}" +
+				$"/to/{request.ToTime.ToString()}";
+			HttpRequestMessage httpRequestMessage = new HttpRequestMessage(HttpMethod.Get, requestStr);
+			httpRequestMessage.Headers.Add("Accept", "application/json");
+			HttpResponseMessage response = _httpClient.Send(httpRequestMessage);
+			if (response.IsSuccessStatusCode)
+			{
+				string responseStr = response.Content.ReadAsStringAsync().Result;
+				RamMetricsResponse ramMetricsResponse =
+					(RamMetricsResponse)JsonConvert.DeserializeObject(responseStr, typeof(RamMetricsResponse));
+				ramMetricsResponse.AgenId = request.AgentId;
+				return ramMetricsResponse;
+			}
+			return null;
+		}
     }
 }

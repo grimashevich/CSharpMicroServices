@@ -26,4 +26,11 @@
     </PackageReference>
   </ItemGroup>
 
+  <ItemGroup>
+    <Page Update="RamChart.xaml">
+      <XamlRuntime>$(DefaultXamlRuntime)</XamlRuntime>
+      <SubType>Designer</SubType>
+    </Page>
+  </ItemGroup>
+
 </Project>

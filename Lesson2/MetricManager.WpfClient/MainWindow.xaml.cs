@@ -29,5 +29,10 @@ namespace MetricManager.WpfClient
 		{
 
 		}
+
+		private void RamChart_Loaded(object sender, RoutedEventArgs e)
+		{
+
+		}
 	}
 }

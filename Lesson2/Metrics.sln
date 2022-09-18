@@ -5,11 +5,7 @@ VisualStudioVersion = 17.3.32804.467
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MetricsManager", "MetricsManager\MetricsManager.csproj", "{F92910EB-CE98-4AB2-8C44-4B69D3295317}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MetricsManagerTests", "MetricsManagerTests\MetricsManagerTests.csproj", "{4AE79594-F05D-42FD-8627-002E47871217}"
-EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MetricsAgent", "MetricsAgent\MetricsAgent.csproj", "{F40E9EE4-91EF-4135-A27A-E39213A97365}"
-EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MetricsAgentTests", "MetricsAgentTests\MetricsAgentTests.csproj", "{20784499-08AA-4F7D-BD58-2543C096E471}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MetricsManager.Client", "MetricsManager.Client\MetricsManager.Client.csproj", "{539AAD9E-193A-4F32-ABAA-0985790BCD59}"
 EndProject
@@ -25,18 +21,10 @@ Global
 		{F92910EB-CE98-4AB2-8C44-4B69D3295317}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{F92910EB-CE98-4AB2-8C44-4B69D3295317}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{F92910EB-CE98-4AB2-8C44-4B69D3295317}.Release|Any CPU.Build.0 = Release|Any CPU
-		{4AE79594-F05D-42FD-8627-002E47871217}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{4AE79594-F05D-42FD-8627-002E47871217}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{4AE79594-F05D-42FD-8627-002E47871217}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{4AE79594-F05D-42FD-8627-002E47871217}.Release|Any CPU.Build.0 = Release|Any CPU
 		{F40E9EE4-91EF-4135-A27A-E39213A97365}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{F40E9EE4-91EF-4135-A27A-E39213A97365}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{F40E9EE4-91EF-4135-A27A-E39213A97365}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{F40E9EE4-91EF-4135-A27A-E39213A97365}.Release|Any CPU.Build.0 = Release|Any CPU
-		{20784499-08AA-4F7D-BD58-2543C096E471}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{20784499-08AA-4F7D-BD58-2543C096E471}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{20784499-08AA-4F7D-BD58-2543C096E471}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{20784499-08AA-4F7D-BD58-2543C096E471}.Release|Any CPU.Build.0 = Release|Any CPU
 		{539AAD9E-193A-4F32-ABAA-0985790BCD59}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{539AAD9E-193A-4F32-ABAA-0985790BCD59}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{539AAD9E-193A-4F32-ABAA-0985790BCD59}.Release|Any CPU.ActiveCfg = Release|Any CPU

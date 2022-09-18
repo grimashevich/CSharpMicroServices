@@ -6,5 +6,6 @@ namespace MetricsManager.Services.Client
     public interface IMetricsAgentClient
     {
         CpuMetricsResponse GetCpuMetrics(CpuMetricsRequest request);
+        RamMetricsResponse GetRamMetrics(RamMetricsRequest request);
     }
 }
